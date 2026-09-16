@@ -37,8 +37,8 @@ function operationTable(rows){return`<table class="data-table"><thead><tr><th>Pa
 async function setMode(mode){
   quoteState.mode=mode;quoteState.token++;const token=quoteState.token;$$('.mode-tab').forEach(x=>x.classList.toggle('active',x.dataset.mode===mode));$('#view').className='loading';$('#view').textContent='Caricamento dati…';
   try{
-    if(mode==='quote'&&!quoteState.quote)quoteState.quote=await loadJson('data/storico_quote_attuali.json');
-    if(mode!=='quote'&&!quoteState.operations)quoteState.operations=await loadJson('data/punta_banca_bonus.json');
+    if(mode==='quote'&&!quoteState.quote)quoteState.quote=await loadJson(`${DATA_BASE_URL}/storico_quote_attuali.json`);
+    if(mode!=='quote'&&!quoteState.operations)quoteState.operations=await loadJson(`${DATA_BASE_URL}/punta_banca_bonus.json`);
     if(token!==quoteState.token)return;quoteState.rows=modeRows();const source=mode==='quote'?quoteState.quote:quoteState.operations;setUpdated(source?.ciclo?.terminato_al_utc||source?.aggiornamento_quote||source?.generato_al_utc);filterOptions();render(true);
   }catch(e){$('#view').className='error';$('#view').textContent=`Impossibile caricare i dati: ${e.message}`;setUpdated(null)}
 }

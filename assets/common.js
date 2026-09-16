@@ -4,6 +4,7 @@ const $$=s=>[...document.querySelectorAll(s)];
 const fmtNumber=(v,d=2)=>v===null||v===undefined||v===''?'—':Number(v).toLocaleString('it-IT',{minimumFractionDigits:d,maximumFractionDigits:d});
 const fmtDate=v=>{if(!v)return'—';const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleString('it-IT',{dateStyle:'short',timeStyle:'short'})};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DATA_BASE_URL='https://statistiche-calcio-data.duckdns.org';
 async function loadJson(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw new Error(`Dati non disponibili (${r.status})`);return r.json()}
 function fillSelect(el,values,label='Tutti'){el.innerHTML=`<option value="">${label}</option>`+[...new Set(values.filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'it')).map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')}
 const marketLabels={MATCH_RESULT:'Esito finale 1X2',TOTAL_GOALS:'Under/Over',BOTH_TEAMS_TO_SCORE:'Gol/No Gol'};
