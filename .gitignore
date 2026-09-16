@@ -1,0 +1,13 @@
+*.sqlite3
+*.sqlite3-*
+*.key
+*.pem
+*.log
+*.env
+__pycache__/
+backup*/
+backups*/
+*.tar.gz
+*.zip
+
+*.json.gz
