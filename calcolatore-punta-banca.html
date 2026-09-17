@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calcolatore Punta-Banca - Nicola & Orion 2026</title>
+<style>
+:root{--blu:#163a5f;--azzurro:#eaf3fa;--verde:#087a4b;--rosso:#b42318;--giallo:#fff5cc;--testo:#17212b}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8;color:var(--testo);font-family:Segoe UI,Arial,sans-serif}
+header{background:linear-gradient(135deg,#163a5f,#1769aa);color:#fff;padding:22px 4%}
+header h1{margin:0 0 5px;font-size:25px}
+header p{margin:0;opacity:.9}
+main{max-width:1050px;margin:auto;padding:20px}
+.avviso{background:var(--giallo);border-left:5px solid #d49b00;padding:12px;margin-bottom:16px;border-radius:7px}
+section{background:#fff;border-radius:11px;padding:18px;margin-bottom:16px;box-shadow:0 1px 6px #0002}
+h2{margin:0 0 15px;color:var(--blu);font-size:21px}
+.griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:13px}
+.campo label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+.campo input,.campo select{width:100%;padding:10px;border:1px solid #bdc9d3;border-radius:7px;background:#fff;font-size:15px}
+.azioni{display:flex;flex-wrap:wrap;gap:10px}
+button{border:0;border-radius:8px;padding:12px 18px;cursor:pointer;font-weight:700;font-size:15px}
+.primario{background:var(--blu);color:#fff}
+.secondario{background:#dfe8ef;color:var(--blu)}
+#errori{display:none;background:#fff0ee;color:var(--rosso);border-left:5px solid var(--rosso);padding:12px;margin-bottom:16px;white-space:pre-line}
+#risultati{display:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:11px;margin-bottom:16px}
+.card{background:var(--azzurro);padding:14px;border-radius:9px;border:1px solid #d5e4ef}
+.card span{display:block;font-size:12px;color:#546473}
+.card strong{display:block;font-size:21px;color:var(--blu);margin-top:4px}
+.tabella{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:var(--blu);color:#fff;text-align:left;padding:10px;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid #e1e6ea;white-space:nowrap}
+.ok{color:var(--verde);font-weight:700}
+.ko{color:var(--rosso);font-weight:700}
+.nota{font-size:13px;color:#5f6c76;line-height:1.45}
+@media print{.azioni,.avviso{display:none}body{background:#fff}section{box-shadow:none;border:1px solid #ddd}}
+</style>
+</head>
+<body>
+<header>
+<h1>Nicola &amp; Orion 2026</h1>
+<p>Calcolatore manuale Punta–Banca</p>
+</header>
+
+<main>
+<div class="avviso">
+<strong>INSERIMENTO MANUALE.</strong>
+Il calcolo viene eseguito esclusivamente nel browser e non invia dati in rete.
+</div>
+
+<div id="errori"></div>
+
+<section>
+<h2>Dati dell’operazione</h2>
+<div class="griglia">
+<div class="campo">
+<label for="tipo">Tipologia</label>
+<select id="tipo">
+<option value="REALE">Puntata reale</option>
+<option value="FREEBET">Freebet non rimborsabile</option>
+</select>
+</div>
+
+<div class="campo">
+<label for="puntata">Importo PUNTA (€)</label>
+<input id="puntata" type="number" min="0.01" step="0.01" value="30">
+</div>
+
+<div class="campo">
+<label for="quotaPunta">Quota PUNTA</label>
+<input id="quotaPunta" type="number" min="1.01" step="0.01" value="2.00">
+</div>
+
+<div class="campo">
+<label for="quotaBanca">Quota BANCA</label>
+<input id="quotaBanca" type="number" min="1.01" step="0.01" value="2.10">
+</div>
+
+<div class="campo">
+<label for="commissione">Commissione Exchange (%)</label>
+<input id="commissione" type="number" min="0" max="99.99" step="0.01" value="5">
+</div>
+
+<div class="campo">
+<label for="liquidita">Liquidità disponibile (€)</label>
+<input id="liquidita" type="number" min="0" step="0.01" value="100">
+</div>
+</div>
+</section>
+
+<section class="azioni">
+<button class="primario" type="button" onclick="calcola()">Calcola Punta–Banca</button>
+<button class="secondario" type="button" onclick="caricaEsempio()">Carica esempio</button>
+<button class="secondario" type="button" onclick="azzera()">Azzera</button>
+<button class="secondario" type="button" onclick="window.print()">Stampa</button>
+</section>
+
+<section id="risultati">
+<h2>Risultato dell’operazione</h2>
+
+<div class="cards" id="cards"></div>
+
+<div class="tabella">
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Risultato bookmaker</th>
+<th>Risultato Exchange</th>
+<th>Risultato complessivo</th>
+</tr>
+</thead>
+<tbody id="scenari"></tbody>
+</table>
+</div>
+
+<p class="nota">
+La puntata BANCA viene arrotondata ai centesimi. Per questo i due risultati
+possono differire leggermente. Prima di confermare l’operazione verificare
+sempre quota, commissione, responsabilità e liquidità effettivamente disponibili.
+</p>
+</section>
+</main>
+
+<script>
+"use strict";
+
+const euro = valore => new Intl.NumberFormat(
+  "it-IT",
+  {style:"currency",currency:"EUR"}
+).format(valore);
+
+const numero = id => Number(document.getElementById(id).value);
+
+function mostraErrori(errori){
+  const box=document.getElementById("errori");
+  if(!errori.length){
+    box.style.display="none";
+    box.textContent="";
+    return;
+  }
+  box.textContent="Correggere i seguenti dati:\n• "+errori.join("\n• ");
+  box.style.display="block";
+  document.getElementById("risultati").style.display="none";
+}
+
+function calcola(){
+  const tipo=document.getElementById("tipo").value;
+  const puntata=numero("puntata");
+  const quotaPunta=numero("quotaPunta");
+  const quotaBanca=numero("quotaBanca");
+  const commissionePercento=numero("commissione");
+  const liquidita=numero("liquidita");
+  const errori=[];
+
+  if(!(puntata>0)) errori.push("L’importo PUNTA deve essere maggiore di zero.");
+  if(!(quotaPunta>1)) errori.push("La quota PUNTA deve essere maggiore di 1.");
+  if(!(quotaBanca>1)) errori.push("La quota BANCA deve essere maggiore di 1.");
+  if(!(commissionePercento>=0&&commissionePercento<100)){
+    errori.push("La commissione deve essere compresa tra 0 e 100%.");
+  }
+  if(!(liquidita>=0)) errori.push("La liquidità non è valida.");
+
+  mostraErrori(errori);
+  if(errori.length) return;
+
+  const commissione=commissionePercento/100;
+  const denominatore=quotaBanca-commissione;
+
+  const bancataEsatta=tipo==="FREEBET"
+    ? puntata*(quotaPunta-1)/denominatore
+    : puntata*quotaPunta/denominatore;
+
+  const bancata=Math.round(bancataEsatta*100)/100;
+  const responsabilita=bancata*(quotaBanca-1);
+
+  const risultatoBookmakerVince=puntata*(quotaPunta-1);
+  const risultatoExchangeVince=-responsabilita;
+  const risultatoTotalePunta=
+    risultatoBookmakerVince+risultatoExchangeVince;
+
+  const risultatoBookmakerPerde=tipo==="FREEBET" ? 0 : -puntata;
+  const risultatoExchangePerde=bancata*(1-commissione);
+  const risultatoTotaleBanca=
+    risultatoBookmakerPerde+risultatoExchangePerde;
+
+  const risultatoMedio=(risultatoTotalePunta+risultatoTotaleBanca)/2;
+  const differenza=Math.abs(risultatoTotalePunta-risultatoTotaleBanca);
+  const capitaleMassimo=responsabilita+(tipo==="REALE" ? puntata : 0);
+  const conversione=tipo==="FREEBET"
+    ? risultatoMedio/puntata*100
+    : null;
+  const liquiditaSufficiente=liquidita>=bancata;
+
+  const cards=[
+    ["Puntata BANCA",euro(bancata)],
+    ["Responsabilità Exchange",euro(responsabilita)],
+    ["Risultato medio",euro(risultatoMedio)],
+    ["Differenza per arrotondamento",euro(differenza)],
+    ["Capitale massimo necessario",euro(capitaleMassimo)],
+    [
+      "Conversione freebet",
+      conversione===null ? "Non applicabile" : conversione.toFixed(2)+"%"
+    ],
+    [
+      "Liquidità",
+      liquiditaSufficiente ? "SUFFICIENTE" : "INSUFFICIENTE"
+    ]
+  ];
+
+  document.getElementById("cards").innerHTML=cards.map((voce,indice)=>`
+    <div class="card">
+      <span>${voce[0]}</span>
+      <strong class="${
+        indice===6 ? (liquiditaSufficiente?"ok":"ko") : ""
+      }">${voce[1]}</strong>
+    </div>
+  `).join("");
+
+  document.getElementById("scenari").innerHTML=`
+    <tr>
+      <td>Vince la selezione PUNTA</td>
+      <td>${euro(risultatoBookmakerVince)}</td>
+      <td>${euro(risultatoExchangeVince)}</td>
+      <td class="${risultatoTotalePunta>=0?"ok":"ko"}">
+        ${euro(risultatoTotalePunta)}
+      </td>
+    </tr>
+    <tr>
+      <td>Vince la BANCA</td>
+      <td>${euro(risultatoBookmakerPerde)}</td>
+      <td>${euro(risultatoExchangePerde)}</td>
+      <td class="${risultatoTotaleBanca>=0?"ok":"ko"}">
+        ${euro(risultatoTotaleBanca)}
+      </td>
+    </tr>
+  `;
+
+  document.getElementById("risultati").style.display="block";
+}
+
+function caricaEsempio(){
+  document.getElementById("tipo").value="REALE";
+
+  document.getElementById("puntata").value="30";
+  document.getElementById("quotaPunta").value="2.00";
+  document.getElementById("quotaBanca").value="2.10";
+  document.getElementById("commissione").value="5";
+  document.getElementById("liquidita").value="100";
+  calcola();
+}
+
+function azzera(){
+
+  document.getElementById("puntata").value="30";
+  document.getElementById("quotaPunta").value="";
+  document.getElementById("quotaBanca").value="";
+  document.getElementById("liquidita").value="";
+  document.getElementById("errori").style.display="none";
+  document.getElementById("risultati").style.display="none";
+}
+</script>
+</body>
+</html>

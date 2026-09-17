@@ -1,4 +1,155 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Calcolatore multipla - Nicola & Orion</title><link rel="stylesheet" href="assets/style.css"></head><body>
-<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html">Nicola &amp; Orion 2026 <span class="beta">BETA</span><small>Statistiche e strumenti di analisi</small></a><nav class="nav"><a href="index.html">Home</a><a href="surebet.html">Surebet</a><a href="quote.html">Quote</a><a href="andamento.html">Andamento</a><a href="calcolatore-multipla.html">Calcolatore</a></nav></div></header>
-<main class="container"><h1 class="page-title">Calcolatore multipla sequenziale</h1><p class="subtitle">Strumento gratuito con inserimento esclusivamente manuale.</p><iframe class="calculator-frame" src="calcolatore-manuale.html" title="Calcolatore multipla sequenziale manuale"></iframe></main>
-<footer class="footer"><div class="footer-inner">Nicola &amp; Orion 2026 · Calcolatore gratuito</div></footer><script src="assets/common.js"></script></body></html>
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calcolatori - Nicola & Orion 2026</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.calculator-tabs{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(230px,1fr));
+  gap:16px;
+  margin:22px 0;
+}
+.calculator-tab{
+  min-height:72px;
+  border:3px solid transparent;
+  border-radius:13px;
+  padding:15px 20px;
+  cursor:pointer;
+  font-size:19px;
+  font-weight:800;
+  box-shadow:0 4px 10px #0002;
+  transition:transform .15s,box-shadow .15s,filter .15s;
+}
+.calculator-tab:hover{
+  transform:translateY(-2px);
+  box-shadow:0 7px 15px #0003;
+  filter:brightness(1.04);
+}
+.calculator-tab.punta-banca,
+.calculator-tab.multipla{
+  background:linear-gradient(135deg,#163a5f,#1769aa);
+  color:#fff;
+}
+.calculator-tab.active{
+  background:linear-gradient(135deg,#087a4b,#0ba36a);
+  color:#fff;
+  border-color:#ffc928;
+  box-shadow:0 0 0 4px #ffc92855,0 7px 15px #0003;
+}
+.calculator-tab small{
+  display:block;
+  margin-top:5px;
+  font-size:13px;
+  font-weight:500;
+  opacity:.92;
+}
+.calculator-frame{
+  width:100%;
+  min-height:1100px;
+  border:0;
+  border-radius:12px;
+  background:#f4f6f8;
+}
+@media(max-width:650px){
+  .calculator-tabs{grid-template-columns:1fr}
+  .calculator-tab{min-height:68px;font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+<div class="topbar-inner">
+<a class="brand" href="index.html">
+Nicola &amp; Orion 2026
+<span class="beta">BETA</span>
+<small>Statistiche e strumenti di analisi</small>
+</a>
+<nav class="nav">
+<a href="index.html">Home</a>
+<a href="surebet.html">Surebet</a>
+<a href="quote.html">Quote</a>
+<a href="andamento.html">Andamento</a>
+<a href="calcolatore-multipla.html">Calcolatore</a>
+</nav>
+</div>
+</header>
+
+<main class="container">
+<h1 class="page-title">Calcolatori</h1>
+<p class="subtitle">
+Scegli lo strumento da utilizzare. I dati vengono inseriti manualmente
+e i calcoli restano nel browser.
+</p>
+
+<div class="calculator-tabs">
+<button
+  type="button"
+  class="calculator-tab punta-banca active"
+  data-src="calcolatore-punta-banca.html"
+  data-title="Punta–Banca singola">
+  Punta–Banca singola
+  <small>Calcola bancata, responsabilità e risultati</small>
+</button>
+
+<button
+  type="button"
+  class="calculator-tab multipla"
+  data-src="calcolatore-manuale.html"
+  data-title="Multipla sequenziale">
+  Multipla sequenziale
+  <small>Copertura progressiva di più selezioni</small>
+</button>
+</div>
+
+<iframe
+  id="calculatorFrame"
+  class="calculator-frame"
+  src="calcolatore-punta-banca.html"
+  title="Calcolatore Punta–Banca">
+</iframe>
+</main>
+
+<footer class="footer">
+<div class="footer-inner">
+Nicola &amp; Orion 2026 · Calcolatori gratuiti
+</div>
+</footer>
+
+<script src="assets/common.js"></script>
+<script>
+"use strict";
+
+const frame=document.getElementById("calculatorFrame");
+const tabs=[...document.querySelectorAll(".calculator-tab")];
+
+function adattaAltezza(){
+  try{
+    const documento=frame.contentDocument;
+    if(!documento) return;
+    const altezza=Math.max(
+      900,
+      documento.body.scrollHeight,
+      documento.documentElement.scrollHeight
+    );
+    frame.style.height=(altezza+30)+"px";
+  }catch(errore){}
+}
+
+tabs.forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    tabs.forEach(elemento=>elemento.classList.remove("active"));
+    tab.classList.add("active");
+    frame.src=tab.dataset.src;
+    frame.title=tab.dataset.title;
+  });
+});
+
+frame.addEventListener("load",adattaAltezza);
+setInterval(adattaAltezza,800);
+</script>
+</body>
+</html>
