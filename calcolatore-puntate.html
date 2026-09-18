@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calcolatore Puntate - Nicola &amp; Orion 2026</title>
+<style>
+:root{--blu:#163a5f;--azzurro:#eaf3fa;--verde:#087a4b;--rosso:#b42318;--giallo:#fff4d6;--testo:#17212b;--linea:#d7e0e6}
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:var(--testo);font-family:Segoe UI,Arial,sans-serif}
+header{background:var(--blu);color:#fff;padding:22px 4%}header h1{margin:0 0 5px;font-size:25px}header p{margin:0;opacity:.88}
+main{max-width:1080px;margin:auto;padding:20px}section{background:#fff;border-radius:11px;padding:17px;margin-bottom:16px;box-shadow:0 1px 5px #0002}
+h2{margin:0 0 14px;color:var(--blu);font-size:20px}.nota{font-size:13px;line-height:1.5;color:#5d6c77}.avviso{background:var(--giallo);border-left:5px solid #d49b00;padding:12px;margin-bottom:16px;border-radius:7px}
+.scelte{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:15px}.scelta{border:2px solid #9eb0bd;border-radius:9px;background:#fff;color:var(--blu);padding:11px 18px;font-weight:800;cursor:pointer}.scelta.active{background:#087a4b;color:#fff;border-color:#ffc928;box-shadow:0 0 0 3px #ffc92844}
+.griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.campo label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}.campo input,.campo select{width:100%;padding:10px;border:1px solid #bdcbd5;border-radius:7px;background:#fff;font-size:15px}
+#rimborsoBox{display:none;margin-top:14px;padding:14px;border:1px solid #d6bf68;background:#fffaf0;border-radius:8px}
+.azioni{display:flex;flex-wrap:wrap;gap:9px}.azioni button{border:0;border-radius:7px;padding:11px 17px;cursor:pointer;font-weight:700}.primario{background:var(--blu);color:#fff}.secondario{background:#dfe8ef;color:var(--blu)}
+#errori{display:none;background:#fff0ee;color:var(--rosso);border-left:5px solid var(--rosso);padding:12px;margin-bottom:16px;white-space:pre-line}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:15px}.card{background:var(--azzurro);padding:13px;border-radius:8px}.card span{display:block;font-size:12px;color:#546473}.card strong{display:block;margin-top:4px;color:var(--blu);font-size:21px}
+#risultati{display:none}.tabella{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th{background:var(--blu);color:#fff;text-align:left;padding:10px;white-space:nowrap}td{padding:9px;border-bottom:1px solid #e1e6ea;white-space:nowrap}.positivo{color:var(--verde);font-weight:800}.negativo{color:var(--rosso);font-weight:800}.neutro{color:var(--blu);font-weight:800}.esito3.hidden{display:none}
+@media(max-width:650px){main{padding:12px}.scelta{flex:1;padding:10px 8px}}
+</style>
+</head>
+<body>
+<header><h1>Nicola &amp; Orion 2026</h1><p>Calcolatore Puntate su 2 o 3 esiti</p></header>
+<main>
+<div class="avviso"><strong>Calcolo manuale.</strong> Gli importi suggeriti vengono ottimizzati e arrotondati all’euro. Gli esiti inseriti devono essere alternativi e coprire tutte le possibilità previste.</div>
+<div id="errori"></div>
+<section>
+<h2>Configurazione</h2>
+<div class="scelte" aria-label="Numero di giocate">
+<button type="button" class="scelta active" data-esiti="2">2 giocate</button>
+<button type="button" class="scelta" data-esiti="3">3 giocate</button>
+</div>
+<div class="griglia">
+<div class="campo"><label for="tipo">Tipo della prima giocata</label><select id="tipo"><option value="REALE">Denaro reale</option><option value="FREEBET">Freebet</option><option value="RIMBORSO">Bonus rimborso</option></select></div>
+<div class="campo"><label for="importo1">Importo prima giocata (€ interi)</label><input id="importo1" type="number" min="1" step="1" value="30"></div>
+<div class="campo"><label for="quota1">Quota giocata 1</label><input id="quota1" type="number" min="1.01" step="0.01" value="2.10"></div>
+<div class="campo"><label for="quota2">Quota giocata 2</label><input id="quota2" type="number" min="1.01" step="0.01" value="2.00"></div>
+<div class="campo esito3 hidden"><label for="quota3">Quota giocata 3</label><input id="quota3" type="number" min="1.01" step="0.01" value="3.20"></div>
+</div>
+<div id="rimborsoBox">
+<h3>Dati del bonus rimborso</h3>
+<div class="griglia">
+<div class="campo"><label for="rimborsoMassimo">Rimborso massimo (€)</label><input id="rimborsoMassimo" type="number" min="0" step="1" value="30"></div>
+<div class="campo"><label for="conversione">Valore effettivo stimato (%)</label><input id="conversione" type="number" min="0" max="100" step="1" value="70"></div>
+</div>
+<p class="nota">Il rimborso viene conteggiato soltanto negli scenari in cui perde la prima giocata. Se è accreditato come bonus, la percentuale indica quanto si stima di convertirne in denaro reale.</p>
+</div>
+</section>
+<section class="azioni"><button type="button" class="primario" id="calcola">Calcola puntate</button><button type="button" class="secondario" id="esempio">Carica esempio</button><button type="button" class="secondario" id="azzera">Azzera</button></section>
+<section id="risultati">
+<h2>Distribuzione consigliata</h2><div class="cards" id="cards"></div>
+<div class="tabella"><table><thead><tr><th>Esito</th><th>Tipo</th><th>Quota</th><th>Puntata effettiva</th><th>Puntata teorica</th><th>Ritorno</th><th>Rimborso stimato</th><th>Risultato netto</th></tr></thead><tbody id="scenari"></tbody></table></div>
+<p class="nota" id="notaRisultato"></p>
+</section>
+</main>
+<script>
+"use strict";
+let numeroEsiti=2;
+const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(n);
+const valore=id=>Number(document.getElementById(id).value);
+const tipoEl=document.getElementById('tipo');
+
+function aggiornaInterfaccia(){
+  document.querySelectorAll('[data-esiti]').forEach(b=>b.classList.toggle('active',Number(b.dataset.esiti)===numeroEsiti));
+  document.querySelectorAll('.esito3').forEach(x=>x.classList.toggle('hidden',numeroEsiti!==3));
+  document.getElementById('rimborsoBox').style.display=tipoEl.value==='RIMBORSO'?'block':'none';
+  document.getElementById('risultati').style.display='none';
+}
+
+function dati(){
+  const importoInserito=valore('importo1');
+  return {
+    tipo:tipoEl.value,
+    importoInserito,
+    importo1:Math.round(importoInserito),
+    quote:[valore('quota1'),valore('quota2'),...(numeroEsiti===3?[valore('quota3')]:[])],
+    rimborsoMassimo:valore('rimborsoMassimo'),
+    conversione:valore('conversione')
+  };
+}
+
+function valida(d){
+  const errori=[];
+  if(!(d.importoInserito>0))errori.push('Inserire un importo maggiore di zero.');
+  if(d.quote.some(q=>!(q>1)))errori.push('Tutte le quote devono essere maggiori di 1.');
+  if(d.tipo==='RIMBORSO'&&!(d.rimborsoMassimo>=0))errori.push('Il rimborso massimo non è valido.');
+  if(d.tipo==='RIMBORSO'&&!(d.conversione>=0&&d.conversione<=100))errori.push('Il valore effettivo deve essere compreso tra 0 e 100%.');
+  return errori;
+}
+
+function risultatiPer(d,coperture,rimborso){
+  const totaleCoperture=coperture.reduce((a,b)=>a+b,0);
+  const capitaleReale=totaleCoperture+(d.tipo==='FREEBET'?0:d.importo1);
+  return d.quote.map((quota,i)=>{
+    const puntata=i===0?d.importo1:coperture[i-1];
+    const ritorno=i===0&&d.tipo==='FREEBET'?d.importo1*(quota-1):puntata*quota;
+    const rimborsoScenario=i===0?0:rimborso;
+    return ritorno-capitaleReale+rimborsoScenario;
+  });
+}
+
+function ottimizza(d,teoriche,rimborso){
+  const insiemi=teoriche.map(t=>{
+    const centro=Math.max(1,Math.round(t));
+    const valori=[];
+    for(let n=Math.max(1,centro-4);n<=centro+4;n++)valori.push(n);
+    return valori;
+  });
+  let migliore=null;
+  const prova=coperture=>{
+    const risultati=risultatiPer(d,coperture,rimborso);
+    const minimo=Math.min(...risultati),massimo=Math.max(...risultati);
+    const scartoTeorico=coperture.reduce((s,x,i)=>s+Math.abs(x-teoriche[i]),0);
+    const punteggio=[massimo-minimo,-minimo,scartoTeorico];
+    if(!migliore||punteggio.some((v,i)=>v<migliore.punteggio[i]&&punteggio.slice(0,i).every((x,j)=>x===migliore.punteggio[j]))){
+      migliore={coperture:[...coperture],risultati,punteggio};
+    }
+  };
+  if(insiemi.length===1)insiemi[0].forEach(a=>prova([a]));
+  else insiemi[0].forEach(a=>insiemi[1].forEach(b=>prova([a,b])));
+  return migliore;
+}
+
+function calcola(){
+  const d=dati(),errori=valida(d),box=document.getElementById('errori');
+  if(errori.length){box.textContent='Correggere i seguenti dati:\n• '+errori.join('\n• ');box.style.display='block';document.getElementById('risultati').style.display='none';return}
+  box.style.display='none';
+  const rimborso=d.tipo==='RIMBORSO'?Math.min(d.importo1,d.rimborsoMassimo)*d.conversione/100:0;
+  const obiettivo=d.tipo==='REALE'?d.importo1*d.quote[0]:d.tipo==='FREEBET'?d.importo1*(d.quote[0]-1):d.importo1*d.quote[0]-rimborso;
+  const teoriche=d.quote.slice(1).map(q=>obiettivo/q);
+  const migliore=ottimizza(d,teoriche,rimborso);
+  const puntate=[d.importo1,...migliore.coperture];
+  const teoricheComplete=[d.importo1,...teoriche];
+  const capitaleReale=migliore.coperture.reduce((a,b)=>a+b,0)+(d.tipo==='FREEBET'?0:d.importo1);
+  const minimo=Math.min(...migliore.risultati),massimo=Math.max(...migliore.risultati),differenza=massimo-minimo;
+  const etichettaTipo=d.tipo==='REALE'?'Denaro reale':d.tipo==='FREEBET'?'Freebet':'Bonus rimborso';
+  document.getElementById('cards').innerHTML=[['Prima giocata',etichettaTipo],['Capitale reale impiegato',euro(capitaleReale)],['Risultato peggiore',euro(minimo)],['Risultato migliore',euro(massimo)],['Differenza tra gli esiti',euro(differenza)],['Rimborso effettivo stimato',d.tipo==='RIMBORSO'?euro(rimborso):'Non applicabile']].map(x=>`<div class="card"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join('');
+  document.getElementById('scenari').innerHTML=d.quote.map((q,i)=>{
+    const risultato=migliore.risultati[i],classe=risultato>0.005?'positivo':risultato<-.005?'negativo':'neutro';
+    const ritorno=i===0&&d.tipo==='FREEBET'?d.importo1*(q-1):puntate[i]*q;
+    const rimborsoScenario=i===0?0:rimborso;
+    return `<tr><td>Giocata ${i+1}</td><td>${i===0?etichettaTipo:'Denaro reale'}</td><td>${q.toFixed(2)}</td><td><strong>${euro(puntate[i])}</strong></td><td>${euro(teoricheComplete[i])}</td><td>${euro(ritorno)}</td><td>${rimborsoScenario?euro(rimborsoScenario):'—'}</td><td class="${classe}">${euro(risultato)}</td></tr>`;
+  }).join('');
+  const note=[];
+  if(Math.abs(d.importoInserito-d.importo1)>.001)note.push(`La prima giocata è stata arrotondata da ${euro(d.importoInserito)} a ${euro(d.importo1)}.`);
+  note.push(`Le coperture sono state scelte tra importi interi per ridurre al minimo la differenza tra gli scenari (${euro(differenza)}).`);
+  if(d.tipo==='RIMBORSO')note.push('Il risultato comprende il valore stimato del rimborso soltanto quando perde la prima giocata.');
+  document.getElementById('notaRisultato').textContent=note.join(' ');
+  document.getElementById('risultati').style.display='block';
+}
+
+document.querySelectorAll('[data-esiti]').forEach(b=>b.addEventListener('click',()=>{numeroEsiti=Number(b.dataset.esiti);aggiornaInterfaccia()}));
+tipoEl.addEventListener('change',aggiornaInterfaccia);
+document.getElementById('calcola').addEventListener('click',calcola);
+document.getElementById('esempio').addEventListener('click',()=>{numeroEsiti=2;tipoEl.value='REALE';document.getElementById('importo1').value=50;document.getElementById('quota1').value=2.10;document.getElementById('quota2').value=2.00;aggiornaInterfaccia();calcola()});
+document.getElementById('azzera').addEventListener('click',()=>{document.querySelectorAll('input').forEach(x=>x.value='');document.getElementById('errori').style.display='none';document.getElementById('risultati').style.display='none'});
+aggiornaInterfaccia();
+</script>
+</body>
+</html>

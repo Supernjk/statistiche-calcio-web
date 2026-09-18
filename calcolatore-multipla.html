@@ -8,7 +8,7 @@
 <style>
 .calculator-tabs{
   display:grid;
-  grid-template-columns:repeat(2,minmax(230px,1fr));
+  grid-template-columns:repeat(3,minmax(210px,1fr));
   gap:16px;
   margin:22px 0;
 }
@@ -29,7 +29,8 @@
   filter:brightness(1.04);
 }
 .calculator-tab.punta-banca,
-.calculator-tab.multipla{
+.calculator-tab.multipla,
+.calculator-tab.puntate{
   background:linear-gradient(135deg,#163a5f,#1769aa);
   color:#fff;
 }
@@ -102,6 +103,16 @@ e i calcoli restano nel browser.
   data-title="Multipla sequenziale">
   Multipla sequenziale
   <small>Copertura progressiva di più selezioni</small>
+</button>
+
+<!-- CALCOLATORE_PUNTATE_V2 -->
+<button
+  type="button"
+  class="calculator-tab puntate"
+  data-src="calcolatore-puntate.html"
+  data-title="Calcolatore Puntate">
+  Calcolatore Puntate
+  <small>Distribuisce 2 o 3 giocate all’euro</small>
 </button>
 </div>
 
