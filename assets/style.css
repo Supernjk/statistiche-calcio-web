@@ -78,3 +78,35 @@
 /* TRE_MODALITA_ANDAMENTO_V1 */
 .movement-details h3{margin:0 0 12px;color:var(--navy)}
 @media(min-width:761px){.trend-view-switch .trend-view-button{min-width:190px}}
+
+/* CONFRONTO_PARTITA_V1 */
+.quote-mode-tabs .mode-tab{min-height:46px;padding-left:18px;padding-right:18px}
+.compare-controls{margin-bottom:16px}
+.compare-picker{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(170px,.65fr) minmax(280px,1.5fr);gap:12px;background:#fff;padding:15px;border:1px solid var(--line);border-radius:11px 11px 0 0}
+.compare-picker select{min-height:42px;font-weight:650}
+.market-choice{display:flex;flex-wrap:wrap;gap:9px;background:#f8fafb;padding:13px 15px;border:1px solid var(--line);border-top:0;border-radius:0 0 11px 11px}
+.market-choice-button{min-width:110px;border:2px solid #bdcbd6;border-radius:9px;background:#fff;color:var(--navy);padding:10px 16px;font-weight:800;cursor:pointer}
+.market-choice-button:hover,.market-choice-button.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.compare-note{color:var(--muted);font-size:13px;padding:5px}
+.compare-result{background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.compare-summary{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:16px 18px;background:#fff}
+.compare-summary>div:first-child span,.compare-summary small{display:block;color:var(--muted);font-size:12px}
+.compare-summary>div:first-child strong{display:block;margin:3px 0;font-size:21px;color:var(--navy)}
+.compare-metrics{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.compare-metrics span{padding:9px 11px;border-radius:8px;background:#edf3f7;color:var(--muted);font-size:12px}
+.compare-metrics strong{display:block;margin-top:2px;color:var(--navy);font-size:17px}
+.compare-help{margin:0;padding:11px 18px;background:#f7f9fb;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.compare-table-wrap{overflow:auto;max-height:64vh}
+.compare-table{border-collapse:separate;border-spacing:0;width:100%;min-width:650px;font-size:14px}
+.compare-table th,.compare-table td{padding:12px 14px;border-bottom:1px solid #e4eaee;text-align:center;white-space:nowrap}
+.compare-table thead th{position:sticky;top:0;z-index:3;background:var(--navy);color:#fff}
+.compare-table .compare-book{position:sticky;left:0;text-align:left;min-width:190px;z-index:2;background:#f3f6f8;color:var(--navy)}
+.compare-table thead .compare-book{z-index:4;background:var(--navy);color:#fff}
+.compare-table tbody tr:hover th,.compare-table tbody tr:hover td{filter:brightness(.98)}
+.compare-sort{border:0;border-radius:7px;background:transparent;color:#fff;padding:7px 14px;font:inherit;font-weight:800;cursor:pointer}
+.compare-sort:hover,.compare-sort.active{background:#ffffff24;box-shadow:inset 0 -3px 0 #f7c948}
+.compare-quote{min-width:130px;background:#fff}.compare-quote strong{font-size:18px;color:var(--ink)}
+.compare-quote small{display:block;margin-top:2px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+.compare-quote.best{background:#e4f7ec}.compare-quote.best strong,.compare-quote.best small{color:#087345}
+.compare-updated{color:var(--muted);font-size:12px}
+@media(max-width:760px){.quote-mode-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.compare-picker{grid-template-columns:1fr}.compare-summary{align-items:flex-start;flex-direction:column}.compare-metrics{justify-content:flex-start}.compare-table .compare-book{min-width:155px}}
