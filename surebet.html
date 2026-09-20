@@ -3,61 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Surebet tradizionali - Nicola & Orion</title>
+<meta name="description" content="Surebet tradizionali e opportunità Punta-Banca.">
+<title>Surebet - Nicola &amp; Orion</title>
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<header class="topbar">
-<div class="topbar-inner">
-<a class="brand" href="index.html">Nicola &amp; Orion 2026 <span class="beta">BETA</span>
-<small>Statistiche e strumenti di analisi</small>
-</a>
-<nav class="nav">
-<a href="index.html">Home</a>
-<a href="surebet.html">Surebet</a>
-<a href="quote.html">Quote</a>
-<a href="andamento.html">Andamento</a>
-<a href="calcolatore-multipla.html">Calcolatore</a>
-</nav>
-</div>
-</header>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html">Nicola &amp; Orion 2026 <span class="beta">BETA</span><small>Statistiche e strumenti di analisi</small></a><nav class="nav"><a href="index.html">Home</a><a href="surebet.html">Surebet</a><a href="quote.html">Quote</a><a href="andamento.html">Andamento</a><a href="calcolatore-multipla.html">Calcolatore</a></nav></div></header>
 <main class="container">
-<h1 class="page-title">Surebet tradizionali</h1>
-<p class="subtitle">Opportunità pre-evento rilevate almeno 12 ore prima dell’inizio.</p>
-<div class="status">
-<span class="pill" id="updated">Caricamento…</span>
-<span class="pill" id="count">
-</span>
+<h1 class="page-title">Surebet</h1>
+<p class="subtitle">Consulta nello stesso spazio le opportunità tradizionali e quelle ottenute abbinando una quota Punta a una quota Banca.</p>
+
+<div class="mode-tabs surebet-mode-tabs" role="tablist" aria-label="Tipi di surebet">
+  <button type="button" class="mode-tab active" data-surebet-mode="tradizionali" role="tab" aria-selected="true">Surebet tradizionali <span class="mode-count" id="traditionalBadge">…</span></button>
+  <button type="button" class="mode-tab" data-surebet-mode="punta_banca" role="tab" aria-selected="false">Surebet Punta-Banca <span class="mode-count" id="puntaBancaBadge">…</span></button>
 </div>
-<div class="filters">
-<div class="field">
-<label>Ricerca</label>
-<input id="q" placeholder="Partita o operatore">
-</div>
-<div class="field">
-<label>Campionato</label>
-<select id="campionato">
-</select>
-</div>
-<div class="field">
-<label>Mercato</label>
-<select id="mercato">
-</select>
-</div>
-<div class="field">
-<label>ROI minimo (%)</label>
-<input id="roi" type="number" step="0.1" value="0">
-</div>
-</div>
+
+<div class="status"><span class="pill" id="updated">Caricamento…</span><span class="pill" id="count"></span></div>
+
+<section id="traditionalSection">
+  <div class="notice"><strong>Surebet tradizionali.</strong> Combinazioni pre-evento che coprono tutti gli esiti dello stesso mercato presso bookmaker differenti.</div>
+  <div class="filters">
+    <div class="field"><label for="tradQ">Ricerca</label><input id="tradQ" placeholder="Partita o operatore"></div>
+    <div class="field"><label for="tradCompetition">Campionato</label><select id="tradCompetition"></select></div>
+    <div class="field"><label for="tradMarket">Mercato</label><select id="tradMarket"></select></div>
+    <div class="field"><label for="tradRoi">ROI minimo (%)</label><input id="tradRoi" type="number" step="0.1" value="0"></div>
+  </div>
+</section>
+
+<section id="puntaBancaSection" class="hidden">
+  <div class="notice"><strong>Surebet Punta-Banca.</strong> La quota Punta supera la quota Banca anche dopo la commissione dell’exchange. Verifica sempre liquidità e arrotondamenti.</div>
+  <div class="filters">
+    <div class="field"><label for="pbQ">Ricerca</label><input id="pbQ" placeholder="Partita, campionato o esito"></div>
+    <div class="field"><label>Operatori Punta</label><details class="multi" id="pbBook"></details></div>
+    <div class="field"><label>Exchange Banca</label><details class="multi" id="pbExchange"></details></div>
+    <div class="field"><label for="pbCompetition">Campionato</label><select id="pbCompetition"></select></div>
+    <div class="field"><label for="pbMarket">Mercato</label><select id="pbMarket"></select></div>
+    <div class="field"><label for="pbRoi">ROI minimo (%)</label><input id="pbRoi" type="number" step="0.01" value="0"></div>
+    <div class="field"><label for="pbLiquidity">Liquidità minima (€)</label><input id="pbLiquidity" type="number" step="1" value="0"></div>
+    <div class="field"><label for="pbSort">Ordina per</label><select id="pbSort"><option value="roi_desc">ROI migliore</option><option value="date_asc">Evento più vicino</option><option value="liquidity_desc">Liquidità maggiore</option></select></div>
+  </div>
+</section>
+
 <div id="view" class="loading">Caricamento dati…</div>
-<div class="disclaimer">Prima di operare, verificare manualmente quote e condizioni sui siti indicati.</div>
+<div class="disclaimer">Prima di operare, verificare manualmente quote, liquidità, commissioni e condizioni sui siti indicati.</div>
 </main>
-<footer class="footer">
-<div class="footer-inner">Nicola &amp; Orion 2026 · Dati informativi</div>
-</footer>
-<script src="assets/common.js">
-</script>
-<script src="assets/surebet.js">
-</script>
+<footer class="footer"><div class="footer-inner">Nicola &amp; Orion 2026 · Dati informativi</div></footer>
+<script src="assets/common.js"></script>
+<script src="assets/surebet.js"></script>
 </body>
 </html>

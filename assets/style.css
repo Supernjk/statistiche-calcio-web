@@ -126,3 +126,10 @@
 .research-block{margin-top:18px}.research-block h3{margin:0 0 9px;color:var(--navy)}
 .research-table{min-width:850px}.research-table td,.research-table th{font-size:12px}
 @media(max-width:760px){.history-mode-tabs{grid-template-columns:1fr}.history-mode-tabs .mode-tab{min-width:0}.research-actions .button{width:100%}}
+
+/* SUREBET_RIORGANIZZATE_V1 */
+.surebet-mode-tabs{grid-template-columns:repeat(2,minmax(240px,1fr));margin:18px 0}
+.surebet-mode-tabs .mode-tab{min-height:58px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:16px}
+.mode-count{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border-radius:999px;background:#e5edf4;color:var(--navy);font-size:13px;font-weight:900}
+.surebet-mode-tabs .mode-tab.active .mode-count{background:#fff;color:var(--blue)}
+@media(max-width:650px){.surebet-mode-tabs{grid-template-columns:1fr}.surebet-mode-tabs .mode-tab{min-width:0}}
