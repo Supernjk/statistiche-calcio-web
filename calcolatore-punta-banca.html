@@ -261,6 +261,22 @@ function azzera(){
   document.getElementById("errori").style.display="none";
   document.getElementById("risultati").style.display="none";
 }
+
+function importaSurebet(){
+  const p=new URLSearchParams(location.search);
+  if(p.get("origine")!=="surebet") return;
+  for(const id of ["tipo","puntata","quotaPunta","quotaBanca","commissione","liquidita"]){
+    const valore=p.get(id);
+    if(valore!==null&&valore!=="") document.getElementById(id).value=valore;
+  }
+  const box=document.createElement("div");
+  box.className="nota";
+  box.textContent=`Dati importati dalla surebet: ${p.get("partita")||"evento"} · ${p.get("mercato")||"mercato"}${p.get("esito")?" · "+p.get("esito"):""}. Modifica liberamente importo e quote prima di confermare.`;
+  document.getElementById("errori").insertAdjacentElement("beforebegin",box);
+  calcola();
+}
+
+importaSurebet();
 </script>
 </body>
 </html>

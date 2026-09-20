@@ -52,6 +52,7 @@ h2{margin:0 0 14px;color:var(--blu);font-size:20px}.nota{font-size:13px;line-hei
 <div class="tabella"><table><thead><tr><th>Esito</th><th>Tipo</th><th>Quota</th><th>Puntata effettiva</th><th>Puntata teorica</th><th>Ritorno</th><th>Rimborso stimato</th><th>Risultato netto</th></tr></thead><tbody id="scenari"></tbody></table></div>
 <p class="nota" id="notaRisultato"></p>
 </section>
+<div class="nota" id="origineSurebet" hidden></div>
 </main>
 <script>
 "use strict";
@@ -154,7 +155,18 @@ tipoEl.addEventListener('change',aggiornaInterfaccia);
 document.getElementById('calcola').addEventListener('click',calcola);
 document.getElementById('esempio').addEventListener('click',()=>{numeroEsiti=2;tipoEl.value='REALE';document.getElementById('importo1').value=50;document.getElementById('quota1').value=2.10;document.getElementById('quota2').value=2.00;aggiornaInterfaccia();calcola()});
 document.getElementById('azzera').addEventListener('click',()=>{document.querySelectorAll('input').forEach(x=>x.value='');document.getElementById('errori').style.display='none';document.getElementById('risultati').style.display='none'});
-aggiornaInterfaccia();
+function importaSurebet(){
+  const p=new URLSearchParams(location.search);
+  if(p.get('origine')!=='surebet')return false;
+  numeroEsiti=Math.min(3,Math.max(2,Number(p.get('esiti'))||2));
+  for(let i=1;i<=numeroEsiti;i++)if(Number(p.get(`quota${i}`))>1)document.getElementById(`quota${i}`).value=p.get(`quota${i}`);
+  tipoEl.value='REALE';
+  const origine=document.getElementById('origineSurebet');
+  origine.hidden=false;
+  origine.textContent=`Dati importati dalla surebet: ${p.get('partita')||'evento'} · ${p.get('mercato')||'mercato'}. Modifica liberamente importo e quote prima di confermare.`;
+  aggiornaInterfaccia();calcola();return true;
+}
+if(!importaSurebet())aggiornaInterfaccia();
 </script>
 </body>
 </html>

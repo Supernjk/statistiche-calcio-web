@@ -133,3 +133,15 @@
 .mode-count{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border-radius:999px;background:#e5edf4;color:var(--navy);font-size:13px;font-weight:900}
 .surebet-mode-tabs .mode-tab.active .mode-count{background:#fff;color:var(--blue)}
 @media(max-width:650px){.surebet-mode-tabs{grid-template-columns:1fr}.surebet-mode-tabs .mode-tab{min-width:0}}
+
+.update-schedule{margin:0 0 18px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 2px 8px #1534500d}
+.update-schedule-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;color:var(--navy)}
+.update-schedule-next{font-size:13px;font-weight:800;color:var(--blue)}
+.update-times{display:flex;flex-wrap:wrap;gap:6px}
+.update-time{min-width:53px;padding:6px 8px;border:1px solid #cbd6de;border-radius:999px;text-align:center;font-size:12px;font-weight:700;color:var(--navy);background:#fff}
+.update-time.done{background:#edf1f4;color:#7a8790;border-color:#e0e6ea}
+.update-time.next{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 0 3px #2382c51f}
+.update-schedule p{margin:9px 0 0;color:var(--muted);font-size:12px}
+.calculate-row-button{border:0;border-radius:7px;background:var(--blue);color:#fff;padding:7px 11px;font-weight:800;cursor:pointer}
+.calculate-row-button:hover{filter:brightness(.92)}
+@media(max-width:650px){.update-schedule-heading{align-items:flex-start;flex-direction:column}.update-time{min-width:50px}}

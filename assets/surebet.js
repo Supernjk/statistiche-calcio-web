@@ -1,6 +1,7 @@
 "use strict";
 
-const surebetState={mode:'tradizionali',traditional:null,puntaBanca:null,traditionalRows:[],puntaBancaRows:[]};
+const surebetState={mode:'tradizionali',traditional:null,puntaBanca:null,traditionalRows:[],puntaBancaRows:[],renderedRows:[]};
+const updateSchedule=['09:00','09:40','10:20','11:00','11:40','12:20','13:00','13:40','14:20','15:00','15:40','16:20','17:00','17:40','18:20','19:00','19:40','20:20','21:00'];
 
 function operationType(row){return String(row.tipo_operazione||row.classificazione||row.tipo||'').toUpperCase()}
 function normalizePuntaBanca(row){return{...row,_book:row.bookmaker_punta,_exchange:row.exchange_banca,_roi:Number(row.roi_percento||0),_liquidity:Number(row.liquidita_banca||0),_date:row.data_ora_evento}}
@@ -14,11 +15,48 @@ function puntaBancaRows(){
   const rows=surebetState.puntaBancaRows.filter(row=>textIncludes(row,q)&&books.has(row._book)&&exchanges.has(row._exchange)&&(!competition||row.campionato===competition)&&(!market||row.mercato===market)&&row._roi>=minimumRoi&&row._liquidity>=minimumLiquidity);
   return rows.sort((a,b)=>sort==='liquidity_desc'?b._liquidity-a._liquidity:sort==='date_asc'?String(a._date).localeCompare(String(b._date),'it'):b._roi-a._roi);
 }
-function traditionalTable(rows){return`<table class="data-table"><thead><tr><th>Evento</th><th>Data</th><th>Campionato</th><th>Mercato</th><th>ROI</th><th>Esiti e operatori</th></tr></thead><tbody>${rows.slice(0,500).map(row=>`<tr><td>${esc(row.partita)}</td><td>${esc(row.data_ora_evento)}</td><td>${esc(row.campionato)}</td><td>${esc(marketLabel(row.mercato))} ${esc(row.linea??'')}</td><td class="positive">${fmtNumber(row.roi_percento,3)}%</td><td>${(row.esiti||[]).map(item=>`${esc(item.esito)} @ <strong>${fmtNumber(item.quota,2)}</strong> · ${esc((item.bookmaker||[]).join(', '))}`).join('<br>')}</td></tr>`).join('')}</tbody></table>`}
-function puntaBancaTable(rows){return`<table class="data-table"><thead><tr><th>Partita</th><th>Data</th><th>Mercato</th><th>Esito</th><th>Operatore Punta</th><th>Quota Punta</th><th>Exchange</th><th>Quota Banca</th><th>Liquidità</th><th>ROI</th><th>Utile stimato</th></tr></thead><tbody>${rows.slice(0,500).map(row=>`<tr><td>${esc(row.partita)}</td><td>${esc(row.data_ora_evento)}</td><td>${esc(marketLabel(row.mercato))} ${esc(row.linea??'')}</td><td>${esc(row.esito)}</td><td>${esc(row._book)}</td><td><strong>${fmtNumber(row.quota_punta,2)}</strong></td><td>${esc(row._exchange)}</td><td>${fmtNumber(row.quota_banca,2)}</td><td>${fmtNumber(row._liquidity,2)} €</td><td class="positive">${fmtNumber(row._roi,3)}%</td><td>${fmtNumber(Math.min(Number(row.utile_se_vince_bookmaker||0),Number(row.utile_se_vince_exchange||0)),2)} €</td></tr>`).join('')}</tbody></table>`}
+function traditionalTable(rows){return`<table class="data-table"><thead><tr><th>Evento</th><th>Data</th><th>Campionato</th><th>Mercato</th><th>ROI</th><th>Esiti e operatori</th><th>Azioni</th></tr></thead><tbody>${rows.slice(0,500).map((row,index)=>`<tr><td>${esc(row.partita)}</td><td>${esc(row.data_ora_evento)}</td><td>${esc(row.campionato)}</td><td>${esc(marketLabel(row.mercato))} ${esc(row.linea??'')}</td><td class="positive">${fmtNumber(row.roi_percento,3)}%</td><td>${(row.esiti||[]).map(item=>`${esc(item.esito)} @ <strong>${fmtNumber(item.quota,2)}</strong> · ${esc((item.bookmaker||[]).join(', '))}`).join('<br>')}</td><td><button type="button" class="calculate-row-button" data-calculate-index="${index}">Calcola</button></td></tr>`).join('')}</tbody></table>`}
+function puntaBancaTable(rows){return`<table class="data-table"><thead><tr><th>Partita</th><th>Data</th><th>Mercato</th><th>Esito</th><th>Operatore Punta</th><th>Quota Punta</th><th>Exchange</th><th>Quota Banca</th><th>Liquidità</th><th>ROI</th><th>Utile stimato</th><th>Azioni</th></tr></thead><tbody>${rows.slice(0,500).map((row,index)=>`<tr><td>${esc(row.partita)}</td><td>${esc(row.data_ora_evento)}</td><td>${esc(marketLabel(row.mercato))} ${esc(row.linea??'')}</td><td>${esc(row.esito)}</td><td>${esc(row._book)}</td><td><strong>${fmtNumber(row.quota_punta,2)}</strong></td><td>${esc(row._exchange)}</td><td>${fmtNumber(row.quota_banca,2)}</td><td>${fmtNumber(row._liquidity,2)} €</td><td class="positive">${fmtNumber(row._roi,3)}%</td><td>${fmtNumber(Math.min(Number(row.utile_se_vince_bookmaker||0),Number(row.utile_se_vince_exchange||0)),2)} €</td><td><button type="button" class="calculate-row-button" data-calculate-index="${index}">Calcola</button></td></tr>`).join('')}</tbody></table>`}
+
+function renderUpdateSchedule(){
+  const now=new Date(),minutes=now.getHours()*60+now.getMinutes();
+  let next='';
+  $('#updateTimes').innerHTML=updateSchedule.map(time=>{
+    const [hours,mins]=time.split(':').map(Number),value=hours*60+mins;
+    let state='future';
+    if(value<=minutes)state='done';
+    else if(!next){state='next';next=time}
+    return `<span class="update-time ${state}">${time}</span>`;
+  }).join('');
+  $('#nextUpdate').textContent=next?`Prossimo avvio: ${next}`:minutes<9*60?'Prossimo avvio: 09:00':'Raccolte odierne concluse';
+}
+
+function calculatorUrl(row){
+  const params=new URLSearchParams({origine:'surebet',partita:row.partita||'',mercato:marketLabel(row.mercato)+(row.linea?` ${row.linea}`:'')});
+  if(surebetState.mode==='tradizionali'){
+    const outcomes=(row.esiti||[]).slice(0,3);
+    params.set('esiti',String(outcomes.length));
+    outcomes.forEach((item,index)=>params.set(`quota${index+1}`,String(item.quota??'')));
+    return `calcolatore-puntate.html?${params}`;
+  }
+  params.set('tipo','REALE');
+  params.set('puntata',String(row.puntata_bookmaker||30));
+  params.set('quotaPunta',String(row.quota_punta||''));
+  params.set('quotaBanca',String(row.quota_banca||''));
+  params.set('commissione',String(row.commissione_percento??5));
+  params.set('liquidita',String(row._liquidity||0));
+  params.set('esito',String(row.esito||''));
+  return `calcolatore-punta-banca.html?${params}`;
+}
+
+function openCalculator(index){
+  const row=surebetState.renderedRows[index];
+  if(row)window.open(calculatorUrl(row),'_blank','noopener');
+}
 
 function renderSurebet(){
   const rows=surebetState.mode==='tradizionali'?traditionalRows():puntaBancaRows();
+  surebetState.renderedRows=rows.slice(0,500);
   $('#count').textContent=`${rows.length.toLocaleString('it-IT')} opportunità`;
   if(!rows.length){$('#view').className='empty';$('#view').textContent='Nessuna opportunità con i filtri selezionati.';return}
   $('#view').className='table-wrap';$('#view').innerHTML=surebetState.mode==='tradizionali'?traditionalTable(rows):puntaBancaTable(rows);
@@ -46,6 +84,8 @@ function initializeSurebet(){
   fillMarketSelect($('#pbMarket'),surebetState.puntaBancaRows.map(row=>row.mercato));
   ['tradQ','tradCompetition','tradMarket','tradRoi','pbQ','pbCompetition','pbMarket','pbRoi','pbLiquidity','pbSort'].forEach(id=>$('#'+id).addEventListener('input',renderSurebet));
   $$('[data-surebet-mode]').forEach(button=>button.addEventListener('click',()=>setSurebetMode(button.dataset.surebetMode)));
+  $('#view').addEventListener('click',event=>{const button=event.target.closest('[data-calculate-index]');if(button)openCalculator(Number(button.dataset.calculateIndex))});
+  renderUpdateSchedule();setInterval(renderUpdateSchedule,60000);
   const requested=new URLSearchParams(location.search).get('modalita');setSurebetMode(requested==='punta_banca'?'punta_banca':'tradizionali');
 }
 
