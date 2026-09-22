@@ -41,7 +41,7 @@ td{padding:10px;border-bottom:1px solid #e1e6ea;white-space:nowrap}
 <body>
 <header>
 <h1>Nicola &amp; Orion 2026</h1>
-<p>Calcolatore manuale Punta–Banca</p>
+<p id="contestoEventoPB">Calcolatore manuale Punta–Banca</p>
 </header>
 
 <main>
@@ -69,12 +69,12 @@ Il calcolo viene eseguito esclusivamente nel browser e non invia dati in rete.
 </div>
 
 <div class="campo">
-<label for="quotaPunta">Quota PUNTA</label>
+<label for="quotaPunta" id="labelQuotaPunta">Quota PUNTA</label>
 <input id="quotaPunta" type="number" min="1.01" step="0.01" value="2.00">
 </div>
 
 <div class="campo">
-<label for="quotaBanca">Quota BANCA</label>
+<label for="quotaBanca" id="labelQuotaBanca">Quota BANCA</label>
 <input id="quotaBanca" type="number" min="1.01" step="0.01" value="2.10">
 </div>
 
@@ -264,15 +264,14 @@ function azzera(){
 
 function importaSurebet(){
   const p=new URLSearchParams(location.search);
-  if(p.get("origine")!=="surebet") return;
+  if(!["surebet","copertura_bonus"].includes(p.get("origine"))) return;
   for(const id of ["tipo","puntata","quotaPunta","quotaBanca","commissione","liquidita"]){
     const valore=p.get(id);
     if(valore!==null&&valore!=="") document.getElementById(id).value=valore;
   }
-  const box=document.createElement("div");
-  box.className="nota";
-  box.textContent=`Dati importati dalla surebet: ${p.get("partita")||"evento"} · ${p.get("mercato")||"mercato"}${p.get("esito")?" · "+p.get("esito"):""}. Modifica liberamente importo e quote prima di confermare.`;
-  document.getElementById("errori").insertAdjacentElement("beforebegin",box);
+  document.getElementById("contestoEventoPB").textContent=`${p.get("partita")||"Evento"} · ${p.get("mercato")||"Mercato"}${p.get("esito")?" · "+p.get("esito"):""}`;
+  document.getElementById("labelQuotaPunta").textContent=`Quota PUNTA — ${p.get("bookmakerPunta")||"Bookmaker"}`;
+  document.getElementById("labelQuotaBanca").textContent=`Quota BANCA — ${p.get("exchangeBanca")||"Exchange"}`;
   calcola();
 }
 

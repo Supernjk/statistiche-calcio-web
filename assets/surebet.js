@@ -15,8 +15,8 @@ function puntaBancaRows(){
   const rows=surebetState.puntaBancaRows.filter(row=>textIncludes(row,q)&&books.has(row._book)&&exchanges.has(row._exchange)&&(!competition||row.campionato===competition)&&(!market||row.mercato===market)&&row._roi>=minimumRoi&&row._liquidity>=minimumLiquidity);
   return rows.sort((a,b)=>sort==='liquidity_desc'?b._liquidity-a._liquidity:sort==='date_asc'?String(a._date).localeCompare(String(b._date),'it'):b._roi-a._roi);
 }
-function traditionalTable(rows){return`<table class="data-table"><thead><tr><th>Evento</th><th>Data</th><th>Campionato</th><th>Mercato</th><th>ROI</th><th>Esiti e operatori</th><th>Azioni</th></tr></thead><tbody>${rows.slice(0,500).map((row,index)=>`<tr><td>${esc(row.partita)}</td><td>${esc(row.data_ora_evento)}</td><td>${esc(row.campionato)}</td><td>${esc(marketLabel(row.mercato))} ${esc(row.linea??'')}</td><td class="positive">${fmtNumber(row.roi_percento,3)}%</td><td>${(row.esiti||[]).map(item=>`${esc(item.esito)} @ <strong>${fmtNumber(item.quota,2)}</strong> · ${esc((item.bookmaker||[]).join(', '))}`).join('<br>')}</td><td><button type="button" class="calculate-row-button" data-calculate-index="${index}">Calcola</button></td></tr>`).join('')}</tbody></table>`}
-function puntaBancaTable(rows){return`<table class="data-table"><thead><tr><th>Partita</th><th>Data</th><th>Mercato</th><th>Esito</th><th>Operatore Punta</th><th>Quota Punta</th><th>Exchange</th><th>Quota Banca</th><th>Liquidità</th><th>ROI</th><th>Utile stimato</th><th>Azioni</th></tr></thead><tbody>${rows.slice(0,500).map((row,index)=>`<tr><td>${esc(row.partita)}</td><td>${esc(row.data_ora_evento)}</td><td>${esc(marketLabel(row.mercato))} ${esc(row.linea??'')}</td><td>${esc(row.esito)}</td><td>${esc(row._book)}</td><td><strong>${fmtNumber(row.quota_punta,2)}</strong></td><td>${esc(row._exchange)}</td><td>${fmtNumber(row.quota_banca,2)}</td><td>${fmtNumber(row._liquidity,2)} €</td><td class="positive">${fmtNumber(row._roi,3)}%</td><td>${fmtNumber(Math.min(Number(row.utile_se_vince_bookmaker||0),Number(row.utile_se_vince_exchange||0)),2)} €</td><td><button type="button" class="calculate-row-button" data-calculate-index="${index}">Calcola</button></td></tr>`).join('')}</tbody></table>`}
+function traditionalTable(rows){return`<table class="data-table"><thead><tr><th>Evento</th><th>Data</th><th>Campionato</th><th>Mercato</th><th>ROI</th><th>Esiti e operatori</th><th>Azioni</th></tr></thead><tbody>${rows.slice(0,500).map((row,index)=>`<tr><td>${esc(row.partita)}</td><td>${esc(row.data_ora_evento)}</td><td>${esc(row.campionato)}</td><td>${esc(marketLabel(row.mercato))} ${esc(row.linea??'')}</td><td class="positive">${fmtNumber(row.roi_percento,3)}%</td><td>${(row.esiti||[]).map(item=>`${esc(item.esito)} @ <strong>${fmtNumber(item.quota,2)}</strong> · ${esc((item.bookmaker||[]).join(', '))}`).join('<br>')}</td><td><button type="button" class="calculate-row-button" data-calculate-index="${index}">Invia al calcolatore</button></td></tr>`).join('')}</tbody></table>`}
+function puntaBancaTable(rows){return`<table class="data-table"><thead><tr><th>Partita</th><th>Data</th><th>Mercato</th><th>Esito</th><th>Operatore Punta</th><th>Quota Punta</th><th>Exchange</th><th>Quota Banca</th><th>Liquidità</th><th>ROI</th><th>Utile stimato</th><th>Azioni</th></tr></thead><tbody>${rows.slice(0,500).map((row,index)=>`<tr><td>${esc(row.partita)}</td><td>${esc(row.data_ora_evento)}</td><td>${esc(marketLabel(row.mercato))} ${esc(row.linea??'')}</td><td>${esc(row.esito)}</td><td>${esc(row._book)}</td><td><strong>${fmtNumber(row.quota_punta,2)}</strong></td><td>${esc(row._exchange)}</td><td>${fmtNumber(row.quota_banca,2)}</td><td>${fmtNumber(row._liquidity,2)} €</td><td class="positive">${fmtNumber(row._roi,3)}%</td><td>${fmtNumber(Math.min(Number(row.utile_se_vince_bookmaker||0),Number(row.utile_se_vince_exchange||0)),2)} €</td><td><button type="button" class="calculate-row-button" data-calculate-index="${index}">Invia al calcolatore</button></td></tr>`).join('')}</tbody></table>`}
 
 function renderUpdateSchedule(){
   const now=new Date(),minutes=now.getHours()*60+now.getMinutes();
@@ -36,7 +36,12 @@ function calculatorUrl(row){
   if(surebetState.mode==='tradizionali'){
     const outcomes=(row.esiti||[]).slice(0,3);
     params.set('esiti',String(outcomes.length));
-    outcomes.forEach((item,index)=>params.set(`quota${index+1}`,String(item.quota??'')));
+    outcomes.forEach((item,index)=>{
+      const number=index+1;
+      params.set(`esito${number}`,String(item.esito??''));
+      params.set(`quota${number}`,String(item.quota??''));
+      params.set(`bookmaker${number}`,(item.bookmaker||[]).join(', '));
+    });
     return `calcolatore-puntate.html?${params}`;
   }
   params.set('tipo','REALE');
@@ -46,6 +51,8 @@ function calculatorUrl(row){
   params.set('commissione',String(row.commissione_percento??5));
   params.set('liquidita',String(row._liquidity||0));
   params.set('esito',String(row.esito||''));
+  params.set('bookmakerPunta',String(row._book||''));
+  params.set('exchangeBanca',String(row._exchange||''));
   return `calcolatore-punta-banca.html?${params}`;
 }
 

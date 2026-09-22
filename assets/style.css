@@ -82,8 +82,9 @@
 /* CONFRONTO_PARTITA_V1 */
 .quote-mode-tabs .mode-tab{min-height:46px;padding-left:18px;padding-right:18px}
 .compare-controls{margin-bottom:16px}
-.compare-picker{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(170px,.65fr) minmax(280px,1.5fr);gap:12px;background:#fff;padding:15px;border:1px solid var(--line);border-radius:11px 11px 0 0}
+.compare-picker{display:grid;grid-template-columns:minmax(165px,.8fr) minmax(145px,.65fr) minmax(240px,1.35fr) minmax(210px,1fr);gap:12px;background:#fff;padding:15px;border:1px solid var(--line);border-radius:11px 11px 0 0}
 .compare-picker select{min-height:42px;font-weight:650}
+.compare-book-field .multi summary{min-height:42px;display:flex;align-items:center}
 .market-choice{display:flex;flex-wrap:wrap;gap:9px;background:#f8fafb;padding:13px 15px;border:1px solid var(--line);border-top:0;border-radius:0 0 11px 11px}
 .market-choice-button{min-width:110px;border:2px solid #bdcbd6;border-radius:9px;background:#fff;color:var(--navy);padding:10px 16px;font-weight:800;cursor:pointer}
 .market-choice-button:hover,.market-choice-button.active{background:var(--navy);border-color:var(--navy);color:#fff}
@@ -144,4 +145,5 @@
 .update-schedule p{margin:9px 0 0;color:var(--muted);font-size:12px}
 .calculate-row-button{border:0;border-radius:7px;background:var(--blue);color:#fff;padding:7px 11px;font-weight:800;cursor:pointer}
 .calculate-row-button:hover{filter:brightness(.92)}
+.nota,#origineSurebet{white-space:pre-line}
 @media(max-width:650px){.update-schedule-heading{align-items:flex-start;flex-direction:column}.update-time{min-width:50px}}

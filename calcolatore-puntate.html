@@ -16,11 +16,12 @@ h2{margin:0 0 14px;color:var(--blu);font-size:20px}.nota{font-size:13px;line-hei
 .azioni{display:flex;flex-wrap:wrap;gap:9px}.azioni button{border:0;border-radius:7px;padding:11px 17px;cursor:pointer;font-weight:700}.primario{background:var(--blu);color:#fff}.secondario{background:#dfe8ef;color:var(--blu)}
 #errori{display:none;background:#fff0ee;color:var(--rosso);border-left:5px solid var(--rosso);padding:12px;margin-bottom:16px;white-space:pre-line}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:15px}.card{background:var(--azzurro);padding:13px;border-radius:8px}.card span{display:block;font-size:12px;color:#546473}.card strong{display:block;margin-top:4px;color:var(--blu);font-size:21px}
 #risultati{display:none}.tabella{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th{background:var(--blu);color:#fff;text-align:left;padding:10px;white-space:nowrap}td{padding:9px;border-bottom:1px solid #e1e6ea;white-space:nowrap}.positivo{color:var(--verde);font-weight:800}.negativo{color:var(--rosso);font-weight:800}.neutro{color:var(--blu);font-weight:800}.esito3.hidden{display:none}
+.esito-bookmaker{display:flex;align-items:center;gap:7px}.esito-bookmaker strong{min-width:24px}.bookmaker-choice{max-width:190px;padding:5px 7px;border:1px solid #aebdc8;border-radius:6px;background:#fff;color:var(--testo);font-weight:700}
 @media(max-width:650px){main{padding:12px}.scelta{flex:1;padding:10px 8px}}
 </style>
 </head>
 <body>
-<header><h1>Nicola &amp; Orion 2026</h1><p>Calcolatore Puntate su 2 o 3 esiti</p></header>
+<header><h1>Nicola &amp; Orion 2026</h1><p id="contestoEvento">Calcolatore Puntate su 2 o 3 esiti</p></header>
 <main>
 <div class="avviso"><strong>Calcolo manuale.</strong> Gli importi suggeriti vengono ottimizzati e arrotondati all’euro. Gli esiti inseriti devono essere alternativi e coprire tutte le possibilità previste.</div>
 <div id="errori"></div>
@@ -49,15 +50,16 @@ h2{margin:0 0 14px;color:var(--blu);font-size:20px}.nota{font-size:13px;line-hei
 <section class="azioni"><button type="button" class="primario" id="calcola">Calcola puntate</button><button type="button" class="secondario" id="esempio">Carica esempio</button><button type="button" class="secondario" id="azzera">Azzera</button></section>
 <section id="risultati">
 <h2>Distribuzione consigliata</h2><div class="cards" id="cards"></div>
-<div class="tabella"><table><thead><tr><th>Esito</th><th>Tipo</th><th>Quota</th><th>Puntata effettiva</th><th>Puntata teorica</th><th>Ritorno</th><th>Rimborso stimato</th><th>Risultato netto</th></tr></thead><tbody id="scenari"></tbody></table></div>
+<div class="tabella"><table><thead><tr><th>Esito e bookmaker</th><th>Tipo</th><th>Quota</th><th>Puntata effettiva</th><th>Puntata teorica</th><th>Ritorno</th><th>Rimborso stimato</th><th>Risultato netto</th></tr></thead><tbody id="scenari"></tbody></table></div>
 <p class="nota" id="notaRisultato"></p>
 </section>
-<div class="nota" id="origineSurebet" hidden></div>
 </main>
 <script>
 "use strict";
 let numeroEsiti=2;
+let contestoGiocate=[];
 const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(n);
+const html=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const valore=id=>Number(document.getElementById(id).value);
 const tipoEl=document.getElementById('tipo');
 
@@ -140,7 +142,9 @@ function calcola(){
     const risultato=migliore.risultati[i],classe=risultato>0.005?'positivo':risultato<-.005?'negativo':'neutro';
     const ritorno=i===0&&d.tipo==='FREEBET'?d.importo1*(q-1):puntate[i]*q;
     const rimborsoScenario=i===0?0:rimborso;
-    return `<tr><td>Giocata ${i+1}</td><td>${i===0?etichettaTipo:'Denaro reale'}</td><td>${q.toFixed(2)}</td><td><strong>${euro(puntate[i])}</strong></td><td>${euro(teoricheComplete[i])}</td><td>${euro(ritorno)}</td><td>${rimborsoScenario?euro(rimborsoScenario):'—'}</td><td class="${classe}">${euro(risultato)}</td></tr>`;
+    const contesto=contestoGiocate[i],esito=contesto?.esito||`Giocata ${i+1}`,bookmakers=contesto?.bookmakers||[];
+    const operatore=bookmakers.length>1?`<select class="bookmaker-choice" aria-label="Bookmaker per ${html(esito)}">${bookmakers.map(nome=>`<option>${html(nome)}</option>`).join('')}</select>`:bookmakers.length===1?`<span>${html(bookmakers[0])}</span>`:'';
+    return `<tr><td><div class="esito-bookmaker"><strong>${html(esito)}</strong>${operatore}</div></td><td>${i===0?etichettaTipo:'Denaro reale'}</td><td>${q.toFixed(2)}</td><td><strong>${euro(puntate[i])}</strong></td><td>${euro(teoricheComplete[i])}</td><td>${euro(ritorno)}</td><td>${rimborsoScenario?euro(rimborsoScenario):'—'}</td><td class="${classe}">${euro(risultato)}</td></tr>`;
   }).join('');
   const note=[];
   if(Math.abs(d.importoInserito-d.importo1)>.001)note.push(`La prima giocata è stata arrotondata da ${euro(d.importoInserito)} a ${euro(d.importo1)}.`);
@@ -157,13 +161,14 @@ document.getElementById('esempio').addEventListener('click',()=>{numeroEsiti=2;t
 document.getElementById('azzera').addEventListener('click',()=>{document.querySelectorAll('input').forEach(x=>x.value='');document.getElementById('errori').style.display='none';document.getElementById('risultati').style.display='none'});
 function importaSurebet(){
   const p=new URLSearchParams(location.search);
-  if(p.get('origine')!=='surebet')return false;
+  const provenienza=p.get('origine');
+  if(!['surebet','quote'].includes(provenienza))return false;
   numeroEsiti=Math.min(3,Math.max(2,Number(p.get('esiti'))||2));
   for(let i=1;i<=numeroEsiti;i++)if(Number(p.get(`quota${i}`))>1)document.getElementById(`quota${i}`).value=p.get(`quota${i}`);
   tipoEl.value='REALE';
-  const origine=document.getElementById('origineSurebet');
-  origine.hidden=false;
-  origine.textContent=`Dati importati dalla surebet: ${p.get('partita')||'evento'} · ${p.get('mercato')||'mercato'}. Modifica liberamente importo e quote prima di confermare.`;
+  contestoGiocate=[];
+  for(let i=1;i<=numeroEsiti;i++)contestoGiocate.push({esito:p.get(`esito${i}`)||`Giocata ${i}`,bookmakers:String(p.get(`bookmaker${i}`)||'').split(',').map(x=>x.trim()).filter(Boolean)});
+  document.getElementById('contestoEvento').textContent=`${p.get('partita')||'Evento'} · ${p.get('mercato')||'Mercato'}`;
   aggiornaInterfaccia();calcola();return true;
 }
 if(!importaSurebet())aggiornaInterfaccia();
