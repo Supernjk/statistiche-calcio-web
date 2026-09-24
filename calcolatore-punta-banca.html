@@ -15,6 +15,9 @@ main{max-width:1050px;margin:auto;padding:20px}
 .avviso{background:var(--giallo);border-left:5px solid #d49b00;padding:12px;margin-bottom:16px;border-radius:7px}
 section{background:#fff;border-radius:11px;padding:18px;margin-bottom:16px;box-shadow:0 1px 6px #0002}
 h2{margin:0 0 15px;color:var(--blu);font-size:21px}
+.evento-importato{text-align:center;margin:0 0 20px}
+.evento-importato strong{display:block;color:var(--verde);font-size:26px;line-height:1.2}
+.evento-importato span{display:block;color:var(--blu);font-size:16px;font-weight:700;margin-top:6px}
 .griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:13px}
 .campo label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
 .campo input,.campo select{width:100%;padding:10px;border:1px solid #bdc9d3;border-radius:7px;background:#fff;font-size:15px}
@@ -54,6 +57,10 @@ Il calcolo viene eseguito esclusivamente nel browser e non invia dati in rete.
 
 <section>
 <h2>Dati dell’operazione</h2>
+<div id="eventoImportato" class="evento-importato" hidden>
+<strong id="nomeEventoImportato"></strong>
+<span id="dettaglioEventoImportato"></span>
+</div>
 <div class="griglia">
 <div class="campo">
 <label for="tipo">Tipologia</label>
@@ -269,7 +276,13 @@ function importaSurebet(){
     const valore=p.get(id);
     if(valore!==null&&valore!=="") document.getElementById(id).value=valore;
   }
-  document.getElementById("contestoEventoPB").textContent=`${p.get("partita")||"Evento"} · ${p.get("mercato")||"Mercato"}${p.get("esito")?" · "+p.get("esito"):""}`;
+  const partita=p.get("partita")||"Evento";
+  const mercato=p.get("mercato")||"Mercato";
+  const esito=p.get("esito")||"";
+  document.getElementById("contestoEventoPB").textContent="Calcolatore manuale Punta–Banca";
+  document.getElementById("nomeEventoImportato").textContent=partita;
+  document.getElementById("dettaglioEventoImportato").textContent=`${mercato}${esito?" · Esito "+esito:""}`;
+  document.getElementById("eventoImportato").hidden=false;
   document.getElementById("labelQuotaPunta").textContent=`Quota PUNTA — ${p.get("bookmakerPunta")||"Bookmaker"}`;
   document.getElementById("labelQuotaBanca").textContent=`Quota BANCA — ${p.get("exchangeBanca")||"Exchange"}`;
   calcola();
