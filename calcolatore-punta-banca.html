@@ -271,10 +271,13 @@ function azzera(){
 
 function importaSurebet(){
   const p=new URLSearchParams(location.search);
-  if(!["surebet","copertura_bonus"].includes(p.get("origine"))) return;
+  const origine=p.get("origine");
+  if(!["surebet","copertura_bonus","quote"].includes(origine)) return;
+  const campiBanca=["quotaBanca","commissione","liquidita"];
   for(const id of ["tipo","puntata","quotaPunta","quotaBanca","commissione","liquidita"]){
     const valore=p.get(id);
-    if(valore!==null&&valore!=="") document.getElementById(id).value=valore;
+    if(origine==="quote"&&campiBanca.includes(id)&&(valore===null||valore==="")) document.getElementById(id).value="";
+    else if(valore!==null&&valore!=="") document.getElementById(id).value=valore;
   }
   const partita=p.get("partita")||"Evento";
   const mercato=p.get("mercato")||"Mercato";
@@ -284,8 +287,9 @@ function importaSurebet(){
   document.getElementById("dettaglioEventoImportato").textContent=`${mercato}${esito?" · Esito "+esito:""}`;
   document.getElementById("eventoImportato").hidden=false;
   document.getElementById("labelQuotaPunta").textContent=`Quota PUNTA — ${p.get("bookmakerPunta")||"Bookmaker"}`;
-  document.getElementById("labelQuotaBanca").textContent=`Quota BANCA — ${p.get("exchangeBanca")||"Exchange"}`;
-  calcola();
+  const exchange=p.get("exchangeBanca")||"";
+  document.getElementById("labelQuotaBanca").textContent=origine==="quote"&&!exchange?"Quota BANCA":`Quota BANCA — ${exchange||"Exchange"}`;
+  if(origine!=="quote"||campiBanca.every(id=>p.get(id)!==null&&p.get(id)!=="")) calcola();
 }
 
 importaSurebet();
