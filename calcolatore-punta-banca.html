@@ -64,10 +64,22 @@ Il calcolo viene eseguito esclusivamente nel browser e non invia dati in rete.
 <div class="griglia">
 <div class="campo">
 <label for="tipo">Tipologia</label>
-<select id="tipo">
+<select id="tipo" onchange="aggiornaTipo()">
 <option value="REALE">Puntata reale</option>
 <option value="FREEBET">Freebet non rimborsabile</option>
+<option value="RIMBORSO">Puntata con rimborso</option>
 </select>
+</div>
+
+<div class="campo" id="campoRimborso" hidden>
+<label for="rimborso">Rimborso in caso di perdita (%)</label>
+<input id="rimborso" type="number" min="0" max="100" step="0.01" value="50" list="rimborsiRapidi">
+<datalist id="rimborsiRapidi">
+<option value="25"></option>
+<option value="50"></option>
+<option value="75"></option>
+<option value="100"></option>
+</datalist>
 </div>
 
 <div class="campo">
@@ -153,12 +165,18 @@ function mostraErrori(errori){
   document.getElementById("risultati").style.display="none";
 }
 
+function aggiornaTipo(){
+  document.getElementById("campoRimborso").hidden=
+    document.getElementById("tipo").value!=="RIMBORSO";
+}
+
 function calcola(){
   const tipo=document.getElementById("tipo").value;
   const puntata=numero("puntata");
   const quotaPunta=numero("quotaPunta");
   const quotaBanca=numero("quotaBanca");
   const commissionePercento=numero("commissione");
+  const rimborsoPercento=tipo==="RIMBORSO" ? numero("rimborso") : 0;
   const liquidita=numero("liquidita");
   const errori=[];
 
@@ -168,17 +186,23 @@ function calcola(){
   if(!(commissionePercento>=0&&commissionePercento<100)){
     errori.push("La commissione deve essere compresa tra 0 e 100%.");
   }
+  if(tipo==="RIMBORSO"&&!(rimborsoPercento>=0&&rimborsoPercento<=100)){
+    errori.push("Il rimborso deve essere compreso tra 0 e 100%.");
+  }
   if(!(liquidita>=0)) errori.push("La liquidità non è valida.");
 
   mostraErrori(errori);
   if(errori.length) return;
 
   const commissione=commissionePercento/100;
+  const rimborso=rimborsoPercento/100;
   const denominatore=quotaBanca-commissione;
 
   const bancataEsatta=tipo==="FREEBET"
     ? puntata*(quotaPunta-1)/denominatore
-    : puntata*quotaPunta/denominatore;
+    : tipo==="RIMBORSO"
+      ? puntata*(quotaPunta-rimborso)/denominatore
+      : puntata*quotaPunta/denominatore;
 
   const bancata=Math.round(bancataEsatta*100)/100;
   const responsabilita=bancata*(quotaBanca-1);
@@ -188,14 +212,16 @@ function calcola(){
   const risultatoTotalePunta=
     risultatoBookmakerVince+risultatoExchangeVince;
 
-  const risultatoBookmakerPerde=tipo==="FREEBET" ? 0 : -puntata;
+  const risultatoBookmakerPerde=tipo==="FREEBET"
+    ? 0
+    : -puntata+(tipo==="RIMBORSO" ? puntata*rimborso : 0);
   const risultatoExchangePerde=bancata*(1-commissione);
   const risultatoTotaleBanca=
     risultatoBookmakerPerde+risultatoExchangePerde;
 
   const risultatoMedio=(risultatoTotalePunta+risultatoTotaleBanca)/2;
   const differenza=Math.abs(risultatoTotalePunta-risultatoTotaleBanca);
-  const capitaleMassimo=responsabilita+(tipo==="REALE" ? puntata : 0);
+  const capitaleMassimo=responsabilita+(tipo==="FREEBET" ? 0 : puntata);
   const conversione=tipo==="FREEBET"
     ? risultatoMedio/puntata*100
     : null;
@@ -251,6 +277,8 @@ function calcola(){
 function caricaEsempio(){
   document.getElementById("tipo").value="REALE";
 
+  aggiornaTipo();
+
   document.getElementById("puntata").value="30";
   document.getElementById("quotaPunta").value="2.00";
   document.getElementById("quotaBanca").value="2.10";
@@ -279,6 +307,7 @@ function importaSurebet(){
     if(origine==="quote"&&campiBanca.includes(id)&&(valore===null||valore==="")) document.getElementById(id).value="";
     else if(valore!==null&&valore!=="") document.getElementById(id).value=valore;
   }
+  aggiornaTipo();
   const partita=p.get("partita")||"Evento";
   const mercato=p.get("mercato")||"Mercato";
   const esito=p.get("esito")||"";
@@ -292,6 +321,7 @@ function importaSurebet(){
   if(origine!=="quote"||campiBanca.every(id=>p.get(id)!==null&&p.get(id)!=="")) calcola();
 }
 
+aggiornaTipo();
 importaSurebet();
 </script>
 </body>
